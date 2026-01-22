@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShorturlModule } from './shorturl/shorturl.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 
 
@@ -20,7 +22,9 @@ import { UserModule } from './user/user.module';
       // synchronize: true,
     }),
     ShorturlModule,
-    UserModule
+    UserModule,
+    AuthModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
