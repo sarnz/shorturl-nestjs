@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ChangePasswordDto } from './dto/change-password.dto'
 import { User } from '../user/entities/user.entity';
+import { Shorturl } from '../shorturl/entities/shorturl.entity';
+
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -16,6 +18,11 @@ export class AuthService {
         @InjectRepository(User)
     private userRepository: Repository<User>,
 
+    
+        @InjectRepository(Shorturl)
+    private shorturlRepository: Repository<Shorturl>,
+
+
     private usersService: UsersService,
     private jwtService: JwtService,
     
@@ -23,11 +30,21 @@ export class AuthService {
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOne(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
-      return result;
-    }
+    
+  if (!user) {
     return null;
+  }
+
+  
+    const isMatch = await bcrypt.compare(pass.trim(), user.password);
+
+  if (!isMatch) {
+    return 'รหัสผ่านไม่ถูกต้อง';
+  }
+
+  const { password, ...result } = user;
+  return result;
+
   }
 
   async login(user: any) {
@@ -36,7 +53,18 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
-  
+async myShorturl(userId: number) {
+  const user = await this.userRepository.findOne({
+    where: { id: userId },
+    relations: ['shorturls'],
+  });
+
+  if (!user) {
+    return 'ไม่พบข้อมูล';
+  }
+
+  return user.shorturls;
+}
 
   
 async changePassword(

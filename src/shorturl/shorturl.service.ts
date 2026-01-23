@@ -31,7 +31,7 @@ async create(createShorturlDto: CreateShorturlDto,  userId: string): Promise<Sho
 
   findAll(): Promise<Shorturl[]> {
 
-    return this.shorturlRepository.find({ relations: ['user'] });
+    return this.shorturlRepository.find({ relations: ['user'] },);
   }
 
   findOne(id: number) {

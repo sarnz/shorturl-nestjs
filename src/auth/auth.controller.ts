@@ -45,4 +45,16 @@ export class AuthController {
     );
   }
 
+    
+  @UseGuards(JwtAuthGuard)
+  @Get('my-shorturl')
+  myShorturl(
+    
+    @Req() req,
+  ) {
+    return this.authService.myShorturl(
+      req.user.id, 
+    );
+  }
+
 }
