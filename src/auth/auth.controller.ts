@@ -7,13 +7,14 @@ import {
   HttpStatus,
   Post,
   Request,
-  UseGuards
+  UseGuards,
+  Req
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
-
+import { ChangePasswordDto } from './dto/change-password.dto'
 
 
 @Controller('auth')
@@ -31,4 +32,29 @@ export class AuthController {
   getProfile(@Request() req) {
     return req.user;
   }
+  
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  changePassword(
+    @Body() dto: ChangePasswordDto,
+    @Req() req,
+  ) {
+    return this.authService.changePassword(
+      req.user.id, 
+      dto,
+    );
+  }
+
+    
+  @UseGuards(JwtAuthGuard)
+  @Get('my-shorturl')
+  myShorturl(
+    
+    @Req() req,
+  ) {
+    return this.authService.myShorturl(
+      req.user.id, 
+    );
+  }
+
 }
