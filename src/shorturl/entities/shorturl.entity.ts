@@ -7,7 +7,7 @@ export class Shorturl {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+   @Column({ unique: true })
   short_url: string;
 
   @Column()

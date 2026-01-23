@@ -1,17 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
 import { ShorturlService } from './shorturl.service';
 import { CreateShorturlDto } from './dto/create-shorturl.dto';
 import { UpdateShorturlDto } from './dto/update-shorturl.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 
 @Controller('shorturl')
 export class ShorturlController {
   constructor(private readonly shorturlService: ShorturlService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createShorturlDto: CreateShorturlDto) {
-    return this.shorturlService.create(createShorturlDto);
+  create(@Body() createShorturlDto: CreateShorturlDto, @Req() req) {
+    return this.shorturlService.create(createShorturlDto,  req.user.id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   findAll() {
     return this.shorturlService.findAll();

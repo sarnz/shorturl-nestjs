@@ -14,10 +14,19 @@ export class ShorturlService {
     private shorturlRepository: Repository<Shorturl>,
   ) {}
 
-
-  create(createShorturlDto: CreateShorturlDto) {
-    return 'This action adds a new shorturl';
+  private generateCode(length = 6) {
+    return Math.random().toString(36).substring(2, 2 + length);
   }
+  
+async create(createShorturlDto: CreateShorturlDto,  userId: string): Promise<Shorturl> {
+  const shorturl = this.shorturlRepository.create({ 
+    short_origin: createShorturlDto.short_origin, 
+    short_url: this.generateCode(),
+    user_id: userId
+  });
+   console.log(shorturl)
+  return await this.shorturlRepository.save(shorturl);
+}
 
 
   findAll(): Promise<Shorturl[]> {
