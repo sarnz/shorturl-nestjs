@@ -2,12 +2,23 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { ChangePasswordDto } from './dto/change-password.dto'
+import { User } from '../user/entities/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+
+        @InjectRepository(User)
+    private userRepository: Repository<User>,
+
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -25,4 +36,41 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+  
+
+  
+async changePassword(
+  userId: number,
+  dto: ChangePasswordDto,
+) {
+  const user = await this.userRepository.findOne({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new UnauthorizedException();
+  }
+
+  
+
+  
+  const isMatch = await bcrypt.compare(
+    dto.oldPassword,
+    user.password,
+  );
+
+  if (!isMatch) {
+    throw new BadRequestException('รหัสผ่านเดิมไม่ถูกต้อง');
+  }
+
+
+  const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+
+  user.password = hashedPassword;
+  await this.userRepository.save(user);
+
+  return {
+    message: 'เปลี่ยนรหัสผ่านสำเร็จ',
+  };
+}
 }
